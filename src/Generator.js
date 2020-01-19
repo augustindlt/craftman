@@ -1,5 +1,10 @@
 const fs = require("fs");
 const chalk = require("chalk");
+const {
+  VAR_LEFT_DELEMITER,
+  VAR_RIGHT_DELEMITER,
+  CRAFTSMAN_FOLDER
+} = require("./constants");
 
 /**
  * Create a file
@@ -28,7 +33,10 @@ const createFile = (path, fileName, content) => {
 const applyVariable = (variables, content) => {
   Object.keys(variables).forEach(name => {
     const value = variables[name];
-    content = content.replace(new RegExp(`#{${name}}#`, "g"), value);
+    content = content.replace(
+      new RegExp(VAR_LEFT_DELEMITER + name + VAR_RIGHT_DELEMITER, "g"),
+      value
+    );
   });
   return content;
 };
@@ -38,7 +46,9 @@ const applyVariable = (variables, content) => {
  * @param {string} templateName
  */
 const getTemplateContent = templateName => {
-  return fs.readFileSync(`./.craftman/${templateName}.craft`).toString();
+  return fs
+    .readFileSync(`${CRAFTSMAN_FOLDER}/${templateName}.${TEMPLATE_EXT}`)
+    .toString();
 };
 
 /**

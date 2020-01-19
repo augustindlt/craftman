@@ -1,5 +1,6 @@
 const fs = require("fs");
 const inquirer = require("inquirer");
+const { CONFIG_PATH } = require("./constants");
 
 class Config {
   templates = [];
@@ -7,7 +8,7 @@ class Config {
   currentVariables;
 
   constructor() {
-    let configContent = fs.readFileSync("./.craftman/config.json").toString();
+    let configContent = fs.readFileSync(CONFIG_PATH).toString();
     configContent = JSON.parse(configContent);
     this.templates = configContent.templates;
   }
