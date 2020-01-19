@@ -11,7 +11,7 @@ It's a simple way to make conventions on how a file must look like.
 
 ```bash
 # Install craftsman
-npm i -g craftsman
+npm i @augustindlt/craftsman
 ```
 
 ### Config
