@@ -1,6 +1,6 @@
 const CRAFTSMAN_FOLDER = "./.craftsman";
 const CONFIG_PATH = `${CRAFTSMAN_FOLDER}/config.json`;
-const TEMPLATE_EXT = ".craft";
+const TEMPLATE_EXT = "craft";
 const VAR_LEFT_DELEMITER = "#{";
 const VAR_RIGHT_DELEMITER = "}#";
 

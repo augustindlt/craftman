@@ -3,8 +3,10 @@ const chalk = require("chalk");
 const {
   VAR_LEFT_DELEMITER,
   VAR_RIGHT_DELEMITER,
-  CRAFTSMAN_FOLDER
+  CRAFTSMAN_FOLDER,
+  TEMPLATE_EXT
 } = require("./constants");
+const { TemplateNotFoundError } = require("./errors");
 
 /**
  * Create a file
@@ -46,9 +48,11 @@ const applyVariable = (variables, content) => {
  * @param {string} templateName
  */
 const getTemplateContent = templateName => {
-  return fs
-    .readFileSync(`${CRAFTSMAN_FOLDER}/${templateName}.${TEMPLATE_EXT}`)
-    .toString();
+  const templatePath = `${CRAFTSMAN_FOLDER}/${templateName}.${TEMPLATE_EXT}`;
+  if (!fs.existsSync(templatePath)) {
+    throw new TemplateNotFoundError(templateName);
+  }
+  return fs.readFileSync(templatePath).toString();
 };
 
 /**
