@@ -65,6 +65,7 @@ const getTemplateContent = templateName => {
 module.exports = (templateName, filePath, fileName, variables) => {
   filePath = applyVariable(variables, filePath);
   fileName = applyVariable(variables, fileName);
+  templateName = applyVariable(variables, templateName);
   let content = getTemplateContent(templateName);
   content = applyVariable(variables, content);
   createFile(filePath, fileName, content);
