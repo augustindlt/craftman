@@ -17,7 +17,8 @@
     "chalk": "^2.3.0",
     "clear": "0.0.1",
     "figlet": "^1.2.0",
-    "inquirer": "^5.0.1"
+    "inquirer": "^5.0.1",
+    "inquirer-autocomplete-prompt": "^1.0.1"
   },
   "devDependencies": {},
   "repository": {

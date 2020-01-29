@@ -1,7 +1,8 @@
 const fs = require("fs");
 const inquirer = require("inquirer");
-const { CONFIG_PATH } = require("./constants");
-const { ConfigNotFoundError, ConfigValidationError } = require("./errors");
+const ask = require("./ask");
+const { CONFIG_PATH } = require("../constants");
+const { ConfigNotFoundError, ConfigValidationError } = require("../errors");
 
 class Config {
   templates;
@@ -9,14 +10,13 @@ class Config {
   currentVariables;
 
   async askForType() {
-    const { type } = await inquirer.prompt([
-      {
-        type: "list",
-        name: "type",
+    const { type } = await ask({
+      type: {
         message: "What do you want to generate ?",
+        type: "choices",
         choices: this.templates.map(template => template.type)
       }
-    ]);
+    });
 
     this.currentTemplate = this.templates.find(
       template => template.type === type
@@ -29,25 +29,7 @@ class Config {
 
   async askForVariables() {
     const { variables } = this.currentTemplate;
-    const questions = Object.keys(variables).map(name => {
-      const value = variables[name];
-      const message = `What ${name} ?`;
-      if (typeof value === "object") {
-        return {
-          type: "list",
-          name,
-          message,
-          choices: value
-        };
-      }
-      return {
-        type: "input",
-        name,
-        message
-      };
-    });
-
-    this.currentVariables = await inquirer.prompt(questions);
+    this.currentVariables = await ask(variables);
   }
 
   fetchConfig() {
