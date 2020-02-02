@@ -1,5 +1,4 @@
 const fs = require("fs");
-const inquirer = require("inquirer");
 const ask = require("./ask");
 const { CONFIG_PATH, CRAFTSMAN_FOLDER } = require("../constants");
 const { ConfigNotFoundError, ConfigValidationError } = require("../errors");
