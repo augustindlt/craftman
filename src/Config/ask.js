@@ -7,6 +7,10 @@ inquirer.registerPrompt(
   require("inquirer-autocomplete-prompt")
 );
 
+/**
+ * Get default config of a question
+ * @param {object} variable
+ */
 const getDefaultConfig = variable => ({
   name: variable.name,
   message: variable.message || `What ${variable.name} ?`
@@ -49,19 +53,43 @@ const getFileConfig = (variable, type) => ({
 });
 
 const questionsConfig = {
+  /**
+   * Get config for a text question
+   * @param {object} variable
+   */
   text: variable => ({
     ...getDefaultConfig(variable),
     type: "input"
   }),
+
+  /**
+   * Get config for a choices question
+   * @param {object} variable
+   */
   choices: variable => ({
     ...getDefaultConfig(variable),
     type: "list",
     choices: variable.choices
   }),
+
+  /**
+   * Get config for a file select question
+   * @param {object} variable
+   */
   file: variable => getFileConfig(variable, "file"),
+
+  /**
+   * Get config for a directory select question
+   * @param {object} variable
+   */
   directory: variable => getFileConfig(variable, "directory")
 };
 
+/**
+ * Prompt questions and return the responses
+ * @param {object} variables
+ * @return {object} responses
+ */
 module.exports = async variables => {
   const questions = Object.keys(variables).map(name => {
     const variable = variables[name];
