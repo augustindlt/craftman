@@ -1,5 +1,6 @@
 const inquirer = require("inquirer");
 const helpers = require("./helpers");
+const execCondition = require("../condition");
 
 inquirer.registerPrompt(
   "autocomplete",
@@ -56,5 +57,19 @@ module.exports = async variables => {
     return questionsConfig[variable.type]({ name, ...variable });
   });
 
-  return await inquirer.prompt(questions);
+  let responses = {};
+  for (const question of questions) {
+    const variable = variables[question.name];
+
+    let response;
+    if (variable.condition) {
+      response = execCondition(variable.condition, responses)
+        ? await inquirer.prompt(question)
+        : { [question.name]: "" };
+    } else response = await inquirer.prompt(question);
+
+    responses = { ...responses, ...response };
+  }
+
+  return responses;
 };
