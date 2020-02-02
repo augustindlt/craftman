@@ -8,7 +8,7 @@ inquirer.registerPrompt(
 
 const getDefaultConfig = variable => ({
   name: variable.name,
-  message: `What ${variable.name} ?`
+  message: variable.message || `What ${variable.name} ?`
 });
 
 const questionsConfig = {
