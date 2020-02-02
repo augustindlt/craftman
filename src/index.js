@@ -4,6 +4,7 @@ const figlet = require("figlet");
 const config = require("./Config");
 const generate = require("./Generator");
 const { handleError } = require("./errors");
+const execCondition = require("./condition");
 
 (async () => {
   try {
@@ -18,9 +19,21 @@ const { handleError } = require("./errors");
 
     console.log("\n");
 
-    config.currentTemplate.files.forEach(file => {
-      generate(file.template, file.path, file.name, config.currentVariables);
-    });
+    for (const file of config.currentTemplate.files) {
+      if (
+        !file.condition ||
+        (file.condition &&
+          execCondition(file.condition, config.currentVariables))
+      ) {
+        await generate(
+          file.template,
+          file.path,
+          file.name,
+          file.replaceExistingFile,
+          config.currentVariables
+        );
+      }
+    }
 
     console.log(chalk.yellow("\nDone 🏆! 🚀\n"));
   } catch (e) {

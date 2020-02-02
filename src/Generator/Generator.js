@@ -9,20 +9,33 @@ const {
   TEMPLATE_EXT
 } = require("../constants");
 const { TemplateNotFoundError, FormaterNotFoundError } = require("../errors");
+const ask = require("../Config/ask");
 
 /**
  * Create a file
  * @param {string} path
  * @param {string} fileName
  * @param {string} content
+ * @param {"yes"|"no"|"ask"|undefined} replaceExistingFile
  */
-const createFile = (path, fileName, content) => {
+const createFile = async (path, fileName, content, replaceExistingFile) => {
   const filePath = `${path}/${fileName}`;
   if (fs.existsSync(filePath)) {
     console.log(
       "=> " + chalk.blue(filePath) + chalk.red(" already exist ! 😇")
     );
-    return;
+
+    if (replaceExistingFile === "no") return;
+    if (replaceExistingFile !== "yes") {
+      const { replaceIt } = await ask({
+        replaceIt: {
+          type: "choices",
+          choices: ["no", "yes"],
+          message: "Do you want to replace it ?"
+        }
+      });
+      if (replaceIt === "no") return;
+    }
   }
   fs.mkdirSync(path, { recursive: true });
   fs.writeFileSync(filePath, content);
@@ -75,13 +88,20 @@ const getTemplateContent = templateName => {
  * @param {string} templateName
  * @param {string} filePath
  * @param {string} fileName
+ * @param {"yes"|"no"|"ask"|undefined} replaceExistingFile
  * @param {object} variables
  */
-module.exports = (templateName, filePath, fileName, variables) => {
+module.exports = async (
+  templateName,
+  filePath,
+  fileName,
+  replaceExistingFile,
+  variables
+) => {
   filePath = applyVariable(variables, filePath);
   fileName = applyVariable(variables, fileName);
   templateName = applyVariable(variables, templateName);
   let content = getTemplateContent(templateName);
   content = applyVariable(variables, content);
-  createFile(filePath, fileName, content);
+  await createFile(filePath, fileName, content, replaceExistingFile);
 };
