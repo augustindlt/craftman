@@ -1,4 +1,6 @@
-module.exports = {
+const config = require("../Config");
+
+module.exports = () => ({
   /**
    * Change value to uppercase
    * @param {string} value
@@ -15,5 +17,10 @@ module.exports = {
    * Make the first letter to uppercase
    * @param {string} value
    */
-  capitalize: value => value.charAt(0).toUpperCase() + value.slice(1)
-};
+  capitalize: value => value.charAt(0).toUpperCase() + value.slice(1),
+
+  /**
+   * Add config formaters
+   */
+  ...config.formaters
+});

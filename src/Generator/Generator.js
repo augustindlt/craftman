@@ -1,6 +1,6 @@
 const fs = require("fs");
 const chalk = require("chalk");
-const formaters = require("./formaters");
+const getFormaters = require("./formaters");
 const {
   VAR_LEFT_DELEMITER,
   VAR_RIGHT_DELEMITER,
@@ -35,6 +35,8 @@ const createFile = (path, fileName, content) => {
  * @param {string} content
  */
 const applyVariable = (variables, content) => {
+  const formaters = getFormaters();
+  console.log(formaters);
   Object.keys(variables).forEach(name => {
     const regex = `${VAR_LEFT_DELEMITER}${name}[${VAR_FORMATER_DELEMIER}]?([\\w-]*)${VAR_RIGHT_DELEMITER}`;
     const matches = content.match(new RegExp(regex, "gm"));

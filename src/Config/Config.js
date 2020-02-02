@@ -1,11 +1,12 @@
 const fs = require("fs");
 const inquirer = require("inquirer");
 const ask = require("./ask");
-const { CONFIG_PATH } = require("../constants");
+const { CONFIG_PATH, CRAFTSMAN_FOLDER } = require("../constants");
 const { ConfigNotFoundError, ConfigValidationError } = require("../errors");
 
 class Config {
   templates;
+  formaters = {};
   currentTemplate;
   currentVariables;
 
@@ -87,6 +88,32 @@ class Config {
       if (!template.variables) {
         template.variables = {};
       }
+    }
+
+    if (configContent.formaters) {
+      Object.keys(configContent.formaters).forEach(formaterName => {
+        let formaterPath;
+        try {
+          formaterPath = fs.realpathSync(
+            `${CRAFTSMAN_FOLDER}/${configContent.formaters[formaterName]}.js`
+          );
+        } catch {
+          throw new ConfigValidationError(
+            `Formater ${formaterName} formater not found`
+          );
+        }
+
+        const formater = require(formaterPath);
+        if (
+          typeof formater !== "function" ||
+          typeof formater("something") !== "string"
+        ) {
+          throw new ConfigValidationError(
+            `Make sure the ${formaterName} formater is a function that returns a string`
+          );
+        }
+        this.formaters[formaterName] = formater;
+      });
     }
 
     this.templates = configContent.templates;
