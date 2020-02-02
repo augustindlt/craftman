@@ -11,6 +11,11 @@ class Config {
   currentVariables;
 
   async askForType() {
+    if (this.templates.length === 1) {
+      this.currentTemplate = this.templates[0];
+      return;
+    }
+
     const { type } = await ask({
       type: {
         message: "What do you want to generate ?",
