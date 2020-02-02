@@ -3,7 +3,8 @@ const chalk = require("chalk");
 const ERRORS_NAMES = {
   ConfigNotFoundError: "ConfigNotFoundError",
   ConfigValidationError: "ConfigValidationError",
-  TemplateNotFoundError: "TemplateNotFoundError"
+  TemplateNotFoundError: "TemplateNotFoundError",
+  FormaterNotFoundError: "FormaterNotFoundError"
 };
 
 class ConfigNotFoundError extends Error {
@@ -30,6 +31,14 @@ class TemplateNotFoundError extends Error {
   }
 }
 
+class FormaterNotFoundError extends Error {
+  constructor(formaterName) {
+    super(formaterName);
+    this.name = ERRORS_NAMES.FormaterNotFoundError;
+    this.message = `Sorry but the ${formaterName} formater could not be found 🕵🏻‍♂️`;
+  }
+}
+
 const handleError = error => {
   if (error.name in ERRORS_NAMES) {
     console.error(chalk.red(error.message) + "\n");
@@ -42,5 +51,6 @@ module.exports = {
   ConfigNotFoundError,
   ConfigValidationError,
   TemplateNotFoundError,
+  FormaterNotFoundError,
   handleError
 };

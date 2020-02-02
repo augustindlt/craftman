@@ -1,12 +1,14 @@
 const fs = require("fs");
 const chalk = require("chalk");
+const formaters = require("./formaters");
 const {
   VAR_LEFT_DELEMITER,
   VAR_RIGHT_DELEMITER,
+  VAR_FORMATER_DELEMIER,
   CRAFTSMAN_FOLDER,
   TEMPLATE_EXT
-} = require("./constants");
-const { TemplateNotFoundError } = require("./errors");
+} = require("../constants");
+const { TemplateNotFoundError, FormaterNotFoundError } = require("../errors");
 
 /**
  * Create a file
@@ -34,11 +36,22 @@ const createFile = (path, fileName, content) => {
  */
 const applyVariable = (variables, content) => {
   Object.keys(variables).forEach(name => {
+    const regex = `${VAR_LEFT_DELEMITER}${name}[${VAR_FORMATER_DELEMIER}]?([\\w-]*)${VAR_RIGHT_DELEMITER}`;
+    const matches = content.match(new RegExp(regex, "gm"));
+    if (!matches) return;
+
     const value = variables[name];
-    content = content.replace(
-      new RegExp(VAR_LEFT_DELEMITER + name + VAR_RIGHT_DELEMITER, "g"),
-      value
-    );
+    matches.forEach(match => {
+      const [, formaterName] = match.match(new RegExp(regex));
+      let formatedValue = value;
+      if (formaterName) {
+        if (typeof formaters[formaterName] !== "function") {
+          throw new FormaterNotFoundError(formaterName);
+        }
+        formatedValue = formaters[formaterName](value);
+      }
+      content = content.replace(match, formatedValue);
+    });
   });
   return content;
 };
