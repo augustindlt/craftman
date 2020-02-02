@@ -12,6 +12,42 @@ const getDefaultConfig = variable => ({
   message: variable.message || `What ${variable.name} ?`
 });
 
+/**
+ * Get config for the select question of a file or a directory
+ * @param {object} variable
+ * @param {"file" | "directory"} type
+ */
+const getFileConfig = (variable, type) => ({
+  ...getDefaultConfig(variable),
+  type: "autocomplete",
+  source: (_, fileName) =>
+    new Promise(resolve => {
+      const initialPath = variable.path || "./";
+      const list =
+        type === "file"
+          ? helpers.getFiles(initialPath)
+          : helpers.getDirectories(initialPath);
+
+      resolve(
+        list
+          .filter(
+            f =>
+              !fileName || f.toLowerCase().indexOf(fileName.toLowerCase()) != -1
+          )
+          .filter(f => {
+            if (!variable.matchRegex) return true;
+            const regexMatch = new RegExp(variable.matchRegex);
+            return regexMatch.test(f);
+          })
+          .filter(
+            f =>
+              !variable.matchString ||
+              f.toLowerCase().indexOf(variable.matchString.toLowerCase()) != -1
+          )
+      );
+    })
+});
+
 const questionsConfig = {
   text: variable => ({
     ...getDefaultConfig(variable),
@@ -22,33 +58,8 @@ const questionsConfig = {
     type: "list",
     choices: variable.choices
   }),
-  file: variable => ({
-    ...getDefaultConfig(variable),
-    type: "autocomplete",
-    source: (_, fileName) =>
-      new Promise(r =>
-        r(
-          helpers
-            .getFiles(variable.path || "./")
-            .filter(
-              f =>
-                !fileName ||
-                f.toLowerCase().indexOf(fileName.toLowerCase()) != -1
-            )
-            .filter(f => {
-              if (!variable.matchRegex) return true;
-              const regexMatch = new RegExp(variable.matchRegex);
-              return regexMatch.test(f);
-            })
-            .filter(
-              f =>
-                !variable.matchString ||
-                f.toLowerCase().indexOf(variable.matchString.toLowerCase()) !=
-                  -1
-            )
-        )
-      )
-  })
+  file: variable => getFileConfig(variable, "file"),
+  directory: variable => getFileConfig(variable, "directory")
 };
 
 module.exports = async variables => {
