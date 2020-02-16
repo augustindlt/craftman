@@ -1,4 +1,6 @@
 const fs = require("fs");
+const inquirer = require("inquirer");
+const { CancelEditionError } = require("../errors");
 
 /**
  * Get all files and sub directories files of a directory
@@ -39,4 +41,34 @@ const getDirectories = (dir, directories_) => {
   return directories_;
 };
 
-module.exports = { getFiles, getDirectories };
+/**
+ * By default Inquirer handles Ctrl-C itself by force-quitting the process with
+ * no way to clean up. This wrapper around Inquirer throws a Error
+ * instead, allowing normal exception handling.
+ * Thanks https://github.com/justjake
+ */
+const safePrompt = async question => {
+  const promptModule = inquirer.createPromptModule();
+
+  promptModule.registerPrompt(
+    "autocomplete",
+    require("inquirer-autocomplete-prompt")
+  );
+
+  const ui = new inquirer.ui.Prompt(promptModule.prompts, {});
+  return new Promise((resolve, reject) => {
+    const rl = ui.rl;
+    rl.listeners("SIGINT").forEach(listener => rl.off("SIGINT", listener));
+
+    const handleCtrlC = () => {
+      rl.off("SIGINT", handleCtrlC);
+      ui.close();
+      reject(new CancelEditionError());
+    };
+
+    rl.on("SIGINT", handleCtrlC);
+    ui.run([question]).then(resolve, reject);
+  });
+};
+
+module.exports = { getFiles, getDirectories, safePrompt };

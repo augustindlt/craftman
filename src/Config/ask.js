@@ -1,11 +1,7 @@
-const inquirer = require("inquirer");
+const chalk = require("chalk");
 const helpers = require("./helpers");
 const execCondition = require("../condition");
-
-inquirer.registerPrompt(
-  "autocomplete",
-  require("inquirer-autocomplete-prompt")
-);
+const { ERRORS_NAMES } = require("../errors");
 
 /**
  * Get default config of a question
@@ -13,7 +9,10 @@ inquirer.registerPrompt(
  */
 const getDefaultConfig = variable => ({
   name: variable.name,
-  message: variable.message || `What ${variable.name} ?`
+  message:
+    variable.message !== undefined
+      ? variable.message
+      : `What ${variable.name} ?`
 });
 
 /**
@@ -90,25 +89,70 @@ const questionsConfig = {
  * @param {object} variables
  * @return {object} responses
  */
-module.exports = async variables => {
-  const questions = Object.keys(variables).map(name => {
-    const variable = variables[name];
-    return questionsConfig[variable.type]({ name, ...variable });
-  });
-
+const ask = async (variables, prefixMessage) => {
   let responses = {};
-  for (const question of questions) {
-    const variable = variables[question.name];
 
-    let response;
-    if (variable.condition) {
-      response = execCondition(variable.condition, responses)
-        ? await inquirer.prompt(question)
-        : { [question.name]: "" };
-    } else response = await inquirer.prompt(question);
+  for (const variableName in variables) {
+    const variable = variables[variableName];
 
-    responses = { ...responses, ...response };
+    if (variable.type === "array") {
+      if (variable.message) {
+        console.log(chalk.bold(`\n\n${variable.message}`));
+      }
+
+      let response = [];
+      let index = 0;
+      const defaultVariable = {
+        default: {
+          type: "text",
+          message: "",
+          name: variableName
+        }
+      };
+
+      while (true) {
+        try {
+          if (!variable.variables) {
+            const subResponses = await ask(defaultVariable, `${index}:`);
+            response = [
+              ...response,
+              ...Object.keys(subResponses).map(key => subResponses[key])
+            ];
+          } else {
+            const subResponses = await ask(variable.variables, `${index}: `);
+            response = [...response, subResponses];
+          }
+          index++;
+        } catch (e) {
+          if (e.name !== ERRORS_NAMES.CancelEditionError) {
+            throw e;
+          }
+          break;
+        }
+      }
+
+      responses = { ...responses, [variableName]: response };
+    } else {
+      const question = questionsConfig[variable.type]({
+        name: variableName,
+        ...variable
+      });
+
+      if (prefixMessage !== undefined) {
+        question.message = `${prefixMessage}${question.message}`;
+      }
+
+      let response;
+      if (variable.condition) {
+        response = execCondition(variable.condition, responses)
+          ? await helpers.safePrompt(question)
+          : { [question.name]: "" };
+      } else response = await helpers.safePrompt(question);
+
+      responses = { ...responses, ...response };
+    }
   }
-
   return responses;
 };
+
+module.exports = ask;

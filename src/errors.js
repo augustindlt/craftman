@@ -5,7 +5,8 @@ const ERRORS_NAMES = {
   ConfigValidationError: "ConfigValidationError",
   TemplateNotFoundError: "TemplateNotFoundError",
   FormaterNotFoundError: "FormaterNotFoundError",
-  TemplateParserError: "TemplateParserError"
+  TemplateParserError: "TemplateParserError",
+  CancelEditionError: "CancelEditionError"
 };
 
 class ConfigNotFoundError extends Error {
@@ -40,7 +41,17 @@ class TemplateParserError extends Error {
   }
 }
 
+class CancelEditionError extends Error {
+  constructor() {
+    super(ERRORS_NAMES.CancelEditionError);
+    this.name = ERRORS_NAMES.CancelEditionError;
+  }
+}
+
 const handleError = error => {
+  if (error.name === ERRORS_NAMES.CancelEditionError) {
+    process.exit();
+  }
   if (error.name in ERRORS_NAMES) {
     console.error(chalk.red(error.message) + "\n");
     return;
@@ -49,9 +60,11 @@ const handleError = error => {
 };
 
 module.exports = {
+  ERRORS_NAMES,
   ConfigNotFoundError,
   ConfigValidationError,
   TemplateNotFoundError,
   TemplateParserError,
+  CancelEditionError,
   handleError
 };
