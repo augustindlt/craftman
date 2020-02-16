@@ -83,11 +83,12 @@ class Config {
         );
       }
       for (const file of template.files) {
-        if (!file.path || !file.name || !file.template) {
+        if ((!file.path && !template.path) || !file.name || !file.template) {
           throw new ConfigValidationError(
             "Make sure files have all the keys path name and template"
           );
         }
+        file.path = file.path || template.path;
       }
       if (!template.variables) {
         template.variables = {};
