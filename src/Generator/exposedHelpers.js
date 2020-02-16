@@ -1,7 +1,7 @@
 const config = require("../Config");
 
 module.exports = () => {
-  const formaters = {
+  const helpers = {
     /**
      * Change value to uppercase
      * @param {string} value
@@ -21,12 +21,12 @@ module.exports = () => {
     capitalize: value => value.charAt(0).toUpperCase() + value.slice(1),
 
     /**
-     * Add config formaters
+     * Add config helpers
      */
-    ...config.formaters
+    ...config.exposedHelpers
   };
 
-  Object.keys(formaters).forEach(formaterName => {
-    global[formaterName] = formaters[formaterName];
+  Object.keys(helpers).forEach(helperName => {
+    global[helperName] = helpers[helperName];
   });
 };

@@ -5,7 +5,7 @@ const { ConfigNotFoundError, ConfigValidationError } = require("../errors");
 
 class Config {
   templates;
-  formaters = {};
+  exposedHelpers = {};
   currentTemplate;
   currentVariables;
 
@@ -94,29 +94,29 @@ class Config {
       }
     }
 
-    if (configContent.formaters) {
-      Object.keys(configContent.formaters).forEach(formaterName => {
-        let formaterPath;
+    if (configContent.helpers) {
+      Object.keys(configContent.helpers).forEach(helperName => {
+        let helperPath;
         try {
-          formaterPath = fs.realpathSync(
-            `${CRAFTSMAN_FOLDER}/${configContent.formaters[formaterName]}.js`
+          helperPath = fs.realpathSync(
+            `${CRAFTSMAN_FOLDER}/${configContent.helpers[helperName]}.js`
           );
         } catch {
           throw new ConfigValidationError(
-            `Formater ${formaterName} formater not found`
+            `helper ${helperName} helper not found`
           );
         }
 
-        const formater = require(formaterPath);
+        const helper = require(helperPath);
         if (
-          typeof formater !== "function" ||
-          typeof formater("something") !== "string"
+          typeof helper !== "function" ||
+          typeof helper("something") !== "string"
         ) {
           throw new ConfigValidationError(
-            `Make sure the ${formaterName} formater is a function that returns a string`
+            `Make sure the ${helperName} helper is a function that returns a string`
           );
         }
-        this.formaters[formaterName] = formater;
+        this.exposedHelpers[helperName] = helper;
       });
     }
 

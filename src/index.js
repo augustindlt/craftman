@@ -5,7 +5,7 @@ const config = require("./Config");
 const generate = require("./Generator");
 const { handleError } = require("./errors");
 const execCondition = require("./condition");
-const loadFormaters = require("./Generator/formaters");
+const loadHelpers = require("./Generator/exposedHelpers");
 
 (async () => {
   try {
@@ -17,7 +17,7 @@ const loadFormaters = require("./Generator/formaters");
     config.fetchConfig();
     await config.askForType();
     await config.askForVariables();
-    loadFormaters();
+    loadHelpers();
 
     console.log("\n");
 
