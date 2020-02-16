@@ -25,7 +25,7 @@ const getFileConfig = (variable, type) => ({
   type: "autocomplete",
   source: (_, fileName) =>
     new Promise(resolve => {
-      const initialPath = variable.path || "./";
+      const initialPath = variable.path || ".";
       const list =
         type === "file"
           ? helpers.getFiles(initialPath)
