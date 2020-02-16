@@ -97,7 +97,9 @@ const ask = async (variables, prefixMessage) => {
 
     if (variable.type === "array") {
       if (variable.message) {
-        console.log(chalk.bold(`\n\n${variable.message}`));
+        console.log(
+          `${chalk.bold(`\n\n${variable.message}`)} (ctrl+c to exit loop)`
+        );
       }
 
       let response = [];
