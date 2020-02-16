@@ -4,7 +4,8 @@ const ERRORS_NAMES = {
   ConfigNotFoundError: "ConfigNotFoundError",
   ConfigValidationError: "ConfigValidationError",
   TemplateNotFoundError: "TemplateNotFoundError",
-  FormaterNotFoundError: "FormaterNotFoundError"
+  FormaterNotFoundError: "FormaterNotFoundError",
+  TemplateParserError: "TemplateParserError"
 };
 
 class ConfigNotFoundError extends Error {
@@ -31,11 +32,11 @@ class TemplateNotFoundError extends Error {
   }
 }
 
-class FormaterNotFoundError extends Error {
-  constructor(formaterName) {
-    super(formaterName);
-    this.name = ERRORS_NAMES.FormaterNotFoundError;
-    this.message = `Sorry but the ${formaterName} formater could not be found 🕵🏻‍♂️`;
+class TemplateParserError extends Error {
+  constructor(scope, errorMessage) {
+    super(errorMessage);
+    this.name = ERRORS_NAMES.TemplateParserError;
+    this.message = `An error occured when parsing ${scope} : ${errorMessage} 🙊`;
   }
 }
 
@@ -51,6 +52,6 @@ module.exports = {
   ConfigNotFoundError,
   ConfigValidationError,
   TemplateNotFoundError,
-  FormaterNotFoundError,
+  TemplateParserError,
   handleError
 };

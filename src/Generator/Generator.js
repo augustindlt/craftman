@@ -1,14 +1,8 @@
 const fs = require("fs");
 const chalk = require("chalk");
-const getFormaters = require("./formaters");
-const {
-  VAR_LEFT_DELEMITER,
-  VAR_RIGHT_DELEMITER,
-  VAR_FORMATER_DELEMIER,
-  CRAFTSMAN_FOLDER,
-  TEMPLATE_EXT
-} = require("../constants");
-const { TemplateNotFoundError, FormaterNotFoundError } = require("../errors");
+const ejs = require("ejs");
+const { CRAFTSMAN_FOLDER, TEMPLATE_EXT } = require("../constants");
+const { TemplateNotFoundError, TemplateParserError } = require("../errors");
 const ask = require("../Config/ask");
 
 /**
@@ -21,11 +15,13 @@ const ask = require("../Config/ask");
 const createFile = async (path, fileName, content, replaceExistingFile) => {
   const filePath = `${path}/${fileName}`;
   if (fs.existsSync(filePath)) {
-    console.log(
-      "=> " + chalk.blue(filePath) + chalk.red(" already exist ! 😇")
-    );
+    if (replaceExistingFile === "no") {
+      console.log(
+        "=> " + chalk.blue(filePath) + chalk.red(" already exist ! 😇")
+      );
+      return;
+    }
 
-    if (replaceExistingFile === "no") return;
     if (replaceExistingFile !== "yes") {
       const { replaceIt } = await ask({
         replaceIt: {
@@ -46,29 +42,14 @@ const createFile = async (path, fileName, content, replaceExistingFile) => {
  * Apply variables to a string
  * @param {object} variables
  * @param {string} content
+ * @param {string} scope
  */
-const applyVariable = (variables, content) => {
-  const formaters = getFormaters();
-
-  Object.keys(variables).forEach(name => {
-    const regex = `${VAR_LEFT_DELEMITER}${name}[${VAR_FORMATER_DELEMIER}]?([\\w-]*)${VAR_RIGHT_DELEMITER}`;
-    const matches = content.match(new RegExp(regex, "gm"));
-    if (!matches) return;
-
-    const value = variables[name];
-    matches.forEach(match => {
-      const [, formaterName] = match.match(new RegExp(regex));
-      let formatedValue = value;
-      if (formaterName) {
-        if (typeof formaters[formaterName] !== "function") {
-          throw new FormaterNotFoundError(formaterName);
-        }
-        formatedValue = formaters[formaterName](value);
-      }
-      content = content.replace(match, formatedValue);
-    });
-  });
-  return content;
+const applyVariable = (variables, content, scope) => {
+  try {
+    return ejs.render(content, variables);
+  } catch (e) {
+    throw new TemplateParserError(scope, e.message.split("\n")[0]);
+  }
 };
 
 /**
@@ -98,10 +79,10 @@ module.exports = async (
   replaceExistingFile,
   variables
 ) => {
-  filePath = applyVariable(variables, filePath);
-  fileName = applyVariable(variables, fileName);
-  templateName = applyVariable(variables, templateName);
+  filePath = applyVariable(variables, filePath, "file path");
+  fileName = applyVariable(variables, fileName, "file name");
+  templateName = applyVariable(variables, templateName, "template name");
   let content = getTemplateContent(templateName);
-  content = applyVariable(variables, content);
+  content = applyVariable(variables, content, "content");
   await createFile(filePath, fileName, content, replaceExistingFile);
 };
