@@ -3,18 +3,6 @@ const config = require("../Config");
 module.exports = () => {
   const helpers = {
     /**
-     * Change value to uppercase
-     * @param {string} value
-     */
-    uppercase: value => value.toUpperCase(),
-
-    /**
-     * Change value to lowercase
-     * @param {string} value
-     */
-    lowercase: value => value.toLowerCase(),
-
-    /**
      * Make the first letter to uppercase
      * @param {string} value
      */
