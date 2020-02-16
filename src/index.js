@@ -15,7 +15,7 @@ const loadHelpers = require("./Generator/exposedHelpers");
     );
 
     config.fetchConfig();
-    await config.askForType();
+    await config.askForTemplate();
     await config.askForVariables();
     loadHelpers();
 

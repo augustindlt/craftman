@@ -9,22 +9,22 @@ class Config {
   currentTemplate;
   currentVariables;
 
-  async askForType() {
+  async askForTemplate() {
     if (this.templates.length === 1) {
       this.currentTemplate = this.templates[0];
       return;
     }
 
-    const { type } = await ask({
-      type: {
+    const { name } = await ask({
+      name: {
         message: "What do you want to generate ?",
         type: "choices",
-        choices: this.templates.map(template => template.type)
+        choices: this.templates.map(template => template.name)
       }
     });
 
     this.currentTemplate = this.templates.find(
-      template => template.type === type
+      template => template.name === name
     );
 
     if (this.currentTemplate.files.length < 1) {
@@ -69,9 +69,9 @@ class Config {
       );
     }
     for (const template of configContent.templates) {
-      if (template.type === undefined || template.files === undefined) {
+      if (template.name === undefined || template.files === undefined) {
         throw new ConfigValidationError(
-          "Make sure templates have all the keys type and files"
+          "Make sure templates have all the keys name and files"
         );
       }
       if (
@@ -108,12 +108,9 @@ class Config {
         }
 
         const helper = require(helperPath);
-        if (
-          typeof helper !== "function" ||
-          typeof helper("something") !== "string"
-        ) {
+        if (typeof helper !== "function") {
           throw new ConfigValidationError(
-            `Make sure the ${helperName} helper is a function that returns a string`
+            `Make sure the ${helperName} helper is a function`
           );
         }
         this.exposedHelpers[helperName] = helper;
