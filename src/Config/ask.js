@@ -1,5 +1,5 @@
 const chalk = require("chalk");
-const helpers = require("./helpers");
+const utils = require("./utils");
 const execCondition = require("../condition");
 const { ERRORS_NAMES } = require("../errors");
 
@@ -28,8 +28,8 @@ const getFileConfig = (variable, type) => ({
       const initialPath = variable.path || ".";
       const list =
         type === "file"
-          ? helpers.getFiles(initialPath)
-          : helpers.getDirectories(initialPath);
+          ? utils.getFiles(initialPath)
+          : utils.getDirectories(initialPath);
 
       resolve(
         list
@@ -148,9 +148,9 @@ const ask = async (variables, prefixMessage) => {
       let response;
       if (variable.condition) {
         response = execCondition(variable.condition, responses)
-          ? await helpers.safePrompt(question)
+          ? await utils.safePrompt(question)
           : { [question.name]: "" };
-      } else response = await helpers.safePrompt(question);
+      } else response = await utils.safePrompt(question);
 
       responses = { ...responses, ...response };
     }
