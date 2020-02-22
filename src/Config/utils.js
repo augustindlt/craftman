@@ -59,6 +59,7 @@ const safePrompt = async question => {
     const keySubscription = events.keypress.subscribe(e => {
       if (e.key.name === "escape") {
         reject(new CancelEditionError());
+        ui.close();
       }
     });
 
