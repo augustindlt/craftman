@@ -44,11 +44,11 @@ const createFile = async (path, fileName, content, replaceExistingFile) => {
  * @param {string} content
  * @param {string} scope
  */
-const applyVariable = (variables, content, scope) => {
+const applyVariables = (variables, content, scope) => {
   try {
     return ejs.render(content, variables);
   } catch (e) {
-    throw new TemplateParserError(scope, e.message.split("\n")[0]);
+    throw new TemplateParserError(scope, e.message);
   }
 };
 
@@ -72,17 +72,19 @@ const getTemplateContent = templateName => {
  * @param {"yes"|"no"|"ask"|undefined} replaceExistingFile
  * @param {object} variables
  */
-module.exports = async (
+const generateFile = async (
   templateName,
   filePath,
   fileName,
   replaceExistingFile,
   variables
 ) => {
-  filePath = applyVariable(variables, filePath, "file path");
-  fileName = applyVariable(variables, fileName, "file name");
-  templateName = applyVariable(variables, templateName, "template name");
+  filePath = applyVariables(variables, filePath, "file path");
+  fileName = applyVariables(variables, fileName, "file name");
+  templateName = applyVariables(variables, templateName, "template name");
   let content = getTemplateContent(templateName);
-  content = applyVariable(variables, content, "content");
+  content = applyVariables(variables, content, "content");
   await createFile(filePath, fileName, content, replaceExistingFile);
 };
+
+module.exports = { applyVariables, generateFile };

@@ -2,6 +2,7 @@ const chalk = require("chalk");
 const utils = require("./utils");
 const execCondition = require("../condition");
 const { ERRORS_NAMES } = require("../errors");
+const { applyVariables } = require("../Generator");
 
 /**
  * Get default config of a question
@@ -116,7 +117,9 @@ const ask = async (variables, prefixMessage) => {
     if (variable.type === "array") {
       if (variable.message) {
         console.log(
-          `${chalk.bold(`\n${variable.message}`)} (esc to exit loop)`
+          `${chalk.bold(
+            `\n${applyVariables(responses, variable.message, "message")}`
+          )} (esc to exit loop)`
         );
       }
 
@@ -156,6 +159,9 @@ const ask = async (variables, prefixMessage) => {
     } else {
       const question = questionsConfig[variable.type]({
         name: variableName,
+        message:
+          variable.message &&
+          applyVariables(responses, variable.message, "message"),
         ...variable
       });
 

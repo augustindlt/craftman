@@ -2,7 +2,7 @@ const chalk = require("chalk");
 const clear = require("clear");
 const figlet = require("figlet");
 const config = require("./Config");
-const generate = require("./Generator");
+const { generateFile } = require("./Generator");
 const { handleError } = require("./errors");
 const execCondition = require("./condition");
 const loadHelpers = require("./Generator/exposedHelpers");
@@ -27,7 +27,7 @@ const loadHelpers = require("./Generator/exposedHelpers");
         (file.condition &&
           execCondition(file.condition, config.currentVariables))
       ) {
-        await generate(
+        await generateFile(
           file.template,
           file.path,
           file.name,
