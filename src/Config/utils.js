@@ -10,6 +10,7 @@ const { CancelEditionError } = require("../errors");
  * @return {string[]} list of files
  */
 const getFiles = (dir, files_) => {
+  if (!fs.existsSync(dir)) return [];
   files_ = files_ || [];
   const files = fs.readdirSync(dir);
   for (const i in files) {
@@ -30,6 +31,7 @@ const getFiles = (dir, files_) => {
  * @return {string[]} list of directories
  */
 const getDirectories = (dir, directories_) => {
+  if (!fs.existsSync(dir)) return [];
   directories_ = directories_ || [];
   const files = fs.readdirSync(dir);
   for (const i in files) {
