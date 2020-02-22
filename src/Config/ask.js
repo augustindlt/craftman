@@ -98,7 +98,7 @@ const ask = async (variables, prefixMessage) => {
     if (variable.type === "array") {
       if (variable.message) {
         console.log(
-          `${chalk.bold(`\n\n${variable.message}`)} (ctrl+c to exit loop)`
+          `${chalk.bold(`\n${variable.message}`)} (esc to exit loop)`
         );
       }
 
@@ -129,6 +129,7 @@ const ask = async (variables, prefixMessage) => {
           if (e.name !== ERRORS_NAMES.CancelEditionError) {
             throw e;
           }
+          console.log("\n");
           break;
         }
       }

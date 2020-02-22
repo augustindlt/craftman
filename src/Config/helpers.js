@@ -1,5 +1,6 @@
 const fs = require("fs");
 const inquirer = require("inquirer");
+const observe = require("inquirer/lib/utils/events");
 const { CancelEditionError } = require("../errors");
 
 /**
@@ -42,10 +43,7 @@ const getDirectories = (dir, directories_) => {
 };
 
 /**
- * By default Inquirer handles Ctrl-C itself by force-quitting the process with
- * no way to clean up. This wrapper around Inquirer throws a Error
- * instead, allowing normal exception handling.
- * Thanks https://github.com/justjake
+ * Handle esc press inquirer
  */
 const safePrompt = async question => {
   const promptModule = inquirer.createPromptModule();
@@ -56,17 +54,13 @@ const safePrompt = async question => {
   );
 
   const ui = new inquirer.ui.Prompt(promptModule.prompts, {});
+  const events = observe(ui.rl);
   return new Promise((resolve, reject) => {
-    const rl = ui.rl;
-    rl.listeners("SIGINT").forEach(listener => rl.off("SIGINT", listener));
-
-    const handleCtrlC = () => {
-      rl.off("SIGINT", handleCtrlC);
-      ui.close();
-      reject(new CancelEditionError());
-    };
-
-    rl.on("SIGINT", handleCtrlC);
+    events.keypress.subscribe(e => {
+      if (e.key.name === "escape") {
+        reject(new CancelEditionError());
+      }
+    });
     ui.run([question]).then(resolve, reject);
   });
 };
