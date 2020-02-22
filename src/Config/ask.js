@@ -47,6 +47,7 @@ const getFileConfig = (variable, type) => ({
               !variable.matchString ||
               f.toLowerCase().indexOf(variable.matchString.toLowerCase()) != -1
           )
+          .sort((a, b) => a.length - b.length)
       );
     })
 });
