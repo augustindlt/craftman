@@ -55,13 +55,20 @@ const safePrompt = async question => {
 
   const ui = new inquirer.ui.Prompt(promptModule.prompts, {});
   const events = observe(ui.rl);
-  return new Promise((resolve, reject) => {
-    events.keypress.subscribe(e => {
+  return new Promise(async (resolve, reject) => {
+    const keySubscription = events.keypress.subscribe(e => {
       if (e.key.name === "escape") {
         reject(new CancelEditionError());
       }
     });
-    ui.run([question]).then(resolve, reject);
+
+    try {
+      const responses = await ui.run([question]);
+      keySubscription.unsubscribe();
+      resolve(responses);
+    } catch (e) {
+      reject(e);
+    }
   });
 };
 
