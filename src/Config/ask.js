@@ -72,6 +72,23 @@ const questionsConfig = {
   }),
 
   /**
+   * Get config for a autocomplete question
+   * @param {object} variable
+   */
+  autocomplete: variable => ({
+    ...getDefaultConfig(variable),
+    type: "autocomplete",
+    source: (_, search) => {
+      const searchRegex = new RegExp(search, "i");
+      return new Promise((resolve, reject) =>
+        resolve(
+          variable.choices.filter(choice => choice.search(searchRegex) !== -1)
+        )
+      );
+    }
+  }),
+
+  /**
    * Get config for a file select question
    * @param {object} variable
    */
