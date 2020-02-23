@@ -47,7 +47,7 @@ Config parameters :
 
 The variables have all this base config :
 
-```json
+```javascript
 {
   "templates": [
     {
@@ -69,7 +69,7 @@ The variables have all this base config :
 
 `choices` and `autocomplete` :
 
-```json
+```javascript
 {
   ...
   "variables": {
@@ -83,7 +83,7 @@ The variables have all this base config :
 
 `file` and `directory` :
 
-```json
+```javascript
 {
   ...
   "variables": {
@@ -99,7 +99,7 @@ The variables have all this base config :
 
 `array` :
 
-```json
+```javascript
 {
   ...
   "variables": {
@@ -112,7 +112,7 @@ The variables have all this base config :
 
 With the config below by default the cli will ask for text questions and will set nameOfMyVariable to an simple array of string like: `["hello", "hey" ...]`
 
-```json
+```javascript
 {
   ...
   "variables": {
@@ -143,7 +143,7 @@ The config below will set nameOfMyVariable to an array of object with sub variab
 
 Helpers are custom functions written in javascript, which can be used in your templates and configuration, here is an example of a helper declaration :
 
-```json
+```javascript
 {
   "templates": [...],
   "helpers": {
@@ -160,7 +160,7 @@ module.exports = value => Array.from(value).join("-");
 
 Now we can use it :
 
-```json
+```javascript
 {
   ...
   "condition": "skewer(nameOfMyVariable) === 'h-e-l-l-o'"
@@ -177,7 +177,7 @@ The cli use [EJS](https://ejs.co/) as templating language, you can use all the v
 
 `.craftsman/nameOfMyTemplate.craft` :
 
-```
+```javascript
 console.log(<%=skewer(nameOfMyVariable)>);
 ```
 
@@ -196,7 +196,7 @@ craft
 
 `.craftsman/config.json` :
 
-```json
+```javascript
 {
   "templates": [
     {
