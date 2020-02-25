@@ -3,7 +3,6 @@ const chalk = require("chalk");
 const ejs = require("ejs");
 const { CRAFTSMAN_FOLDER, TEMPLATE_EXT } = require("../constants");
 const { TemplateNotFoundError, TemplateParserError } = require("../errors");
-const ask = require("../Config/ask");
 
 /**
  * Create a file
@@ -23,6 +22,7 @@ const createFile = async (path, fileName, content, replaceExistingFile) => {
     }
 
     if (replaceExistingFile !== "yes") {
+      const ask = require("../Config/ask");
       const { replaceIt } = await ask({
         replaceIt: {
           type: "choices",
