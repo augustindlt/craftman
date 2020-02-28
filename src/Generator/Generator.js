@@ -14,10 +14,13 @@ const { TemplateNotFoundError, TemplateParserError } = require("../errors");
 const createFile = async (path, fileName, content, replaceExistingFile) => {
   const filePath = `${path}/${fileName}`;
   if (fs.existsSync(filePath)) {
-    if (replaceExistingFile === "no") {
+    if (replaceExistingFile !== "yes") {
       console.log(
-        "=> " + chalk.blue(filePath) + chalk.red(" already exist ! 😇")
+        "\n=> " + chalk.blue(filePath) + chalk.red(" already exist ! 😇")
       );
+    }
+
+    if (replaceExistingFile === "no") {
       return;
     }
 
