@@ -1,0 +1,155 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "templates": {
+      "description": "List of all templates.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "description": "Name of the template.",
+            "type": "string"
+          },
+          "path": {
+            "description": "Optional parameter to declare where the files will be created.",
+            "type": "string"
+          },
+          "files": {
+            "description": "List of all the files to generate.",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "description": "Name of the generated file.",
+                  "type": "string"
+                },
+                "template": {
+                  "description": "File name without extension which contains the template.",
+                  "type": "string"
+                },
+                "path": {
+                  "description": "Destination of the generated file.",
+                  "type": "string"
+                },
+                "replaceExistingFile": {
+                  "description": "Determines if the cli should replace the file or not if it already exists, by default this parameter by default this parameter is set to \"ask\".",
+                  "enum": ["yes", "no", "ask"]
+                }
+              },
+              "required": ["name", "template"]
+            }
+          },
+          "variables": {
+            "$ref": "#/definitions/variables"
+          }
+        },
+        "required": ["name", "files"]
+      }
+    },
+    "helpers": {
+      "type": "object",
+      "description": "Helpers are custom functions written in javascript, which can be used in your templates and configuration.\n\n The declaration of a helper takes his name as a key and his path without the extension as value.\n\nExample: { \"camelToSnake\": \"helpers/camelToSnake\" }",
+      "patternProperties": {
+        "^.*$": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "required": ["templates"],
+  "definitions": {
+    "variables": {
+      "description": "All the different variables that are needed to generate the template.",
+      "type": "object",
+      "patternProperties": {
+        "^.*$": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "description": "Message that will be displayed when entering the variable.",
+              "type": "string"
+            },
+            "type": {
+              "description": "Determines the shape of a variable and how it will be entered.",
+              "enum": [
+                "text",
+                "choices",
+                "autocomplete",
+                "file",
+                "directory",
+                "array"
+              ]
+            },
+            "condition": {
+              "description": "Condition for which the variable will be entered or not.\n\nExample: { \"condition\": \"myVariable==='yes'\" }",
+              "type": "string"
+            }
+          },
+          "required": ["type"],
+          "allOf": [
+            {
+              "if": {
+                "properties": { "type": { "enum": ["file", "directory"] } },
+                "required": ["type"]
+              },
+              "then": {
+                "properties": {
+                  "path": {
+                    "description": "Path that will be used to find the files or the directories.",
+                    "type": "string"
+                  },
+                  "matchString": {
+                    "description": "First filter that will allow you to recover certain files or folders.\n\nExample: { \"matchString\": \".test.ts\" }",
+                    "type": "string"
+                  },
+                  "matchRegex": {
+                    "description": "First filter that will allow you to recover certain files or folders.\n\nExample: { \"matchRegex\": \"\\\\.component\\\\.tsx$\" }",
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "type": { "enum": ["choices", "autocomplete"] }
+                },
+                "required": ["type"]
+              },
+              "then": {
+                "properties": {
+                  "choices": {
+                    "description": "Array that contains the different options.\n\nExample: { \"choices\": [\"yes\", \"no\"] }",
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": ["choices"]
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "type": { "const": "array" }
+                },
+                "required": ["type"]
+              },
+              "then": {
+                "properties": {
+                  "variables": {
+                    "$ref": "#/definitions/variables"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}
