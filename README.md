@@ -29,7 +29,7 @@ Config parameters :
 
 | parameter | type      | meaning                                                       |
 | --------- | --------- | ------------------------------------------------------------- |
-| type      | string    | Name of the template                                          |
+| name      | string    | Name of the template                                          |
 | files     | File[]    | List of all the files to generate                             |
 | path      | string    | Optional parameter to declare where the files will be created |
 | variables | Variables | Set of variables you need to create the files                 |
@@ -155,7 +155,7 @@ Helpers are custom functions written in javascript, which can be used in your te
 `.craftsman/helpers/skewer.js` :
 
 ```javascript
-module.exports = value => Array.from(value).join("-");
+module.exports = (value) => Array.from(value).join("-");
 ```
 
 Now we can use it :
@@ -200,7 +200,7 @@ craft
 {
   "templates": [
     {
-      "type": "Hello",
+      "name": "Hello",
       "files": [
         {
           "path": "./src/<%=fileName%>",
