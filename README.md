@@ -198,6 +198,7 @@ craft
 
 ```javascript
 {
+  "$schema": "https://raw.githubusercontent.com/augustindlt/craftman/master/json-schema.json",
   "templates": [
     {
       "name": "Hello",
