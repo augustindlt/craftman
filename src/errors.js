@@ -1,19 +1,19 @@
-const chalk = require("chalk");
+const chalk = require('chalk');
 
 const ERRORS_NAMES = {
-  ConfigNotFoundError: "ConfigNotFoundError",
-  ConfigValidationError: "ConfigValidationError",
-  TemplateNotFoundError: "TemplateNotFoundError",
-  FormaterNotFoundError: "FormaterNotFoundError",
-  TemplateParserError: "TemplateParserError",
-  CancelEditionError: "CancelEditionError"
+  ConfigNotFoundError: 'ConfigNotFoundError',
+  ConfigValidationError: 'ConfigValidationError',
+  TemplateNotFoundError: 'TemplateNotFoundError',
+  FormaterNotFoundError: 'FormaterNotFoundError',
+  TemplateParserError: 'TemplateParserError',
+  CancelEditionError: 'CancelEditionError',
 };
 
 class ConfigNotFoundError extends Error {
   constructor(message) {
     super(message);
     this.name = ERRORS_NAMES.ConfigNotFoundError;
-    this.message = "Sorry but the configuration file could not be found 👀";
+    this.message = 'Sorry but the configuration file could not be found 👀';
   }
 }
 
@@ -53,7 +53,7 @@ const handleError = error => {
     process.exit();
   }
   if (error.name in ERRORS_NAMES) {
-    console.error(chalk.red(error.message) + "\n");
+    console.error(chalk.red(error.message) + '\n');
     return;
   }
   throw error;
@@ -66,5 +66,5 @@ module.exports = {
   TemplateNotFoundError,
   TemplateParserError,
   CancelEditionError,
-  handleError
+  handleError,
 };

@@ -1,8 +1,8 @@
-const fs = require("fs");
-const chalk = require("chalk");
-const ejs = require("ejs");
-const { CRAFTSMAN_FOLDER, TEMPLATE_EXT } = require("../constants");
-const { TemplateNotFoundError, TemplateParserError } = require("../errors");
+const fs = require('fs');
+const chalk = require('chalk');
+const ejs = require('ejs');
+const { CRAFTSMAN_FOLDER, TEMPLATE_EXT } = require('../constants');
+const { TemplateNotFoundError, TemplateParserError } = require('../errors');
 
 /**
  * Create a file
@@ -14,31 +14,31 @@ const { TemplateNotFoundError, TemplateParserError } = require("../errors");
 const createFile = async (path, fileName, content, replaceExistingFile) => {
   const filePath = `${path}/${fileName}`;
   if (fs.existsSync(filePath)) {
-    if (replaceExistingFile !== "yes") {
+    if (replaceExistingFile !== 'yes') {
       console.log(
-        "\n=> " + chalk.blue(filePath) + chalk.red(" already exist ! 😇")
+        '\n=> ' + chalk.blue(filePath) + chalk.red(' already exist ! 😇')
       );
     }
 
-    if (replaceExistingFile === "no") {
+    if (replaceExistingFile === 'no') {
       return;
     }
 
-    if (replaceExistingFile !== "yes") {
-      const ask = require("../Config/ask");
+    if (replaceExistingFile !== 'yes') {
+      const ask = require('../Config/ask');
       const { replaceIt } = await ask({
         replaceIt: {
-          type: "choices",
-          choices: ["no", "yes"],
-          message: "Do you want to replace it ?"
-        }
+          type: 'choices',
+          choices: ['no', 'yes'],
+          message: 'Do you want to replace it ?',
+        },
       });
-      if (replaceIt === "no") return;
+      if (replaceIt === 'no') return;
     }
   }
   fs.mkdirSync(path, { recursive: true });
   fs.writeFileSync(filePath, content);
-  console.log("=> " + chalk.blue(filePath) + chalk.yellow(" Done ! 🥳"));
+  console.log('=> ' + chalk.blue(filePath) + chalk.yellow(' Done ! 🥳'));
 };
 
 /**
@@ -82,11 +82,11 @@ const generateFile = async (
   replaceExistingFile,
   variables
 ) => {
-  filePath = applyVariables(variables, filePath, "file path");
-  fileName = applyVariables(variables, fileName, "file name");
-  templateName = applyVariables(variables, templateName, "template name");
+  filePath = applyVariables(variables, filePath, 'file path');
+  fileName = applyVariables(variables, fileName, 'file name');
+  templateName = applyVariables(variables, templateName, 'template name');
   let content = getTemplateContent(templateName);
-  content = applyVariables(variables, content, "content");
+  content = applyVariables(variables, content, 'content');
   await createFile(filePath, fileName, content, replaceExistingFile);
 };
 

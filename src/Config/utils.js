@@ -1,7 +1,7 @@
-const fs = require("fs");
-const inquirer = require("inquirer");
-const observe = require("inquirer/lib/utils/events");
-const { CancelEditionError } = require("../errors");
+const fs = require('fs');
+const inquirer = require('inquirer');
+const observe = require('inquirer/lib/utils/events');
+const { CancelEditionError } = require('../errors');
 
 /**
  * Get all files and sub directories files of a directory
@@ -14,7 +14,7 @@ const getFiles = (dir, files_) => {
   files_ = files_ || [];
   const files = fs.readdirSync(dir);
   for (const i in files) {
-    const name = dir + "/" + files[i];
+    const name = dir + '/' + files[i];
     if (fs.statSync(name).isDirectory()) {
       getFiles(name, files_);
     } else {
@@ -35,7 +35,7 @@ const getDirectories = (dir, directories_) => {
   directories_ = directories_ || [];
   const files = fs.readdirSync(dir);
   for (const i in files) {
-    const name = dir + "/" + files[i];
+    const name = dir + '/' + files[i];
     if (fs.statSync(name).isDirectory()) {
       getDirectories(name, directories_);
       directories_.push(name);
@@ -51,15 +51,15 @@ const safePrompt = async question => {
   const promptModule = inquirer.createPromptModule();
 
   promptModule.registerPrompt(
-    "autocomplete",
-    require("inquirer-autocomplete-prompt")
+    'autocomplete',
+    require('inquirer-autocomplete-prompt')
   );
 
   const ui = new inquirer.ui.Prompt(promptModule.prompts, {});
   const events = observe(ui.rl);
   return new Promise(async (resolve, reject) => {
     const keySubscription = events.keypress.subscribe(e => {
-      if (e.key.name === "escape") {
+      if (e.key.name === 'escape') {
         reject(new CancelEditionError());
         ui.close();
       }

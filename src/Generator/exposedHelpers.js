@@ -1,4 +1,4 @@
-const config = require("../Config");
+const config = require('../Config');
 
 module.exports = () => {
   const helpers = {
@@ -11,7 +11,7 @@ module.exports = () => {
     /**
      * Add config helpers
      */
-    ...config.exposedHelpers
+    ...config.exposedHelpers,
   };
 
   Object.keys(helpers).forEach(helperName => {
