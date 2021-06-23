@@ -1,7 +1,7 @@
-const fs = require("fs");
-const ask = require("./ask");
-const { CONFIG_PATH, CRAFTSMAN_FOLDER } = require("../constants");
-const { ConfigNotFoundError, ConfigValidationError } = require("../errors");
+const fs = require('fs');
+const ask = require('./ask');
+const { CONFIG_PATH, CRAFTSMAN_FOLDER } = require('../constants');
+const { ConfigNotFoundError, ConfigValidationError } = require('../errors');
 
 class Config {
   templates;
@@ -17,10 +17,10 @@ class Config {
 
     const { name } = await ask({
       name: {
-        message: "What do you want to generate ?",
-        type: "choices",
-        choices: this.templates.map(template => template.name)
-      }
+        message: 'What do you want to generate ?',
+        type: 'choices',
+        choices: this.templates.map(template => template.name),
+      },
     });
 
     this.currentTemplate = this.templates.find(
@@ -28,7 +28,7 @@ class Config {
     );
 
     if (this.currentTemplate.files.length < 1) {
-      throw new ConfigValidationError("Add at least one file to your template");
+      throw new ConfigValidationError('Add at least one file to your template');
     }
   }
 
@@ -48,44 +48,44 @@ class Config {
       configContent = JSON.parse(configContent);
     } catch {
       throw new ConfigValidationError(
-        "Make sure the configuration file is in the JSON format"
+        'Make sure the configuration file is in the JSON format'
       );
     }
     if (configContent.templates === undefined)
       throw new ConfigValidationError(
-        "Make sure the configuration file has the key templates"
+        'Make sure the configuration file has the key templates'
       );
     if (
       configContent.templates.length === undefined ||
-      typeof configContent.templates !== "object"
+      typeof configContent.templates !== 'object'
     ) {
       throw new ConfigValidationError(
-        "Make sure the key templates is an array"
+        'Make sure the key templates is an array'
       );
     }
     if (configContent.templates.length < 1) {
       throw new ConfigValidationError(
-        "Add templates to the configuration file"
+        'Add templates to the configuration file'
       );
     }
     for (const template of configContent.templates) {
       if (template.name === undefined || template.files === undefined) {
         throw new ConfigValidationError(
-          "Make sure templates have all the keys name and files"
+          'Make sure templates have all the keys name and files'
         );
       }
       if (
         template.files.length === undefined ||
-        typeof template.files !== "object"
+        typeof template.files !== 'object'
       ) {
         throw new ConfigValidationError(
-          "Make sure templates have all the key files of type array"
+          'Make sure templates have all the key files of type array'
         );
       }
       for (const file of template.files) {
         if ((!file.path && !template.path) || !file.name || !file.template) {
           throw new ConfigValidationError(
-            "Make sure files have all the keys path name and template"
+            'Make sure files have all the keys path name and template'
           );
         }
         file.path = file.path || template.path;
@@ -109,7 +109,7 @@ class Config {
         }
 
         const helper = require(helperPath);
-        if (typeof helper !== "function") {
+        if (typeof helper !== 'function') {
           throw new ConfigValidationError(
             `Make sure the ${helperName} helper is a function`
           );

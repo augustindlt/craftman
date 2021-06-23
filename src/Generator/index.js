@@ -1,1 +1,1 @@
-module.exports = require("./Generator");
+module.exports = require('./Generator');

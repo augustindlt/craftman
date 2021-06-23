@@ -1,17 +1,17 @@
-const chalk = require("chalk");
-const clear = require("clear");
-const figlet = require("figlet");
-const config = require("./Config");
-const { generateFile } = require("./Generator");
-const { handleError } = require("./errors");
-const execCondition = require("./condition");
-const loadHelpers = require("./Generator/exposedHelpers");
+const chalk = require('chalk');
+const clear = require('clear');
+const figlet = require('figlet');
+const config = require('./Config');
+const { generateFile } = require('./Generator');
+const { handleError } = require('./errors');
+const execCondition = require('./condition');
+const loadHelpers = require('./Generator/exposedHelpers');
 
 (async () => {
   try {
     clear();
     console.log(
-      chalk.yellow(figlet.textSync("craftsman", { horizontalLayout: "full" }))
+      chalk.yellow(figlet.textSync('craftsman', { horizontalLayout: 'full' }))
     );
 
     config.fetchConfig();
@@ -19,7 +19,7 @@ const loadHelpers = require("./Generator/exposedHelpers");
     await config.askForVariables();
     loadHelpers();
 
-    console.log("\n");
+    console.log('\n');
 
     for (const file of config.currentTemplate.files) {
       if (
@@ -37,7 +37,7 @@ const loadHelpers = require("./Generator/exposedHelpers");
       }
     }
 
-    console.log(chalk.yellow("\nDone 🏆! 🚀\n"));
+    console.log(chalk.yellow('\nDone 🏆! 🚀\n'));
   } catch (e) {
     handleError(e);
   }

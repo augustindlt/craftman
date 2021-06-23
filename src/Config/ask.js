@@ -1,8 +1,8 @@
-const chalk = require("chalk");
-const utils = require("./utils");
-const execCondition = require("../condition");
-const { ERRORS_NAMES } = require("../errors");
-const { applyVariables } = require("../Generator");
+const chalk = require('chalk');
+const utils = require('./utils');
+const execCondition = require('../condition');
+const { ERRORS_NAMES } = require('../errors');
+const { applyVariables } = require('../Generator');
 
 /**
  * Get default config of a question
@@ -13,7 +13,7 @@ const getDefaultConfig = variable => ({
   message:
     variable.message !== undefined
       ? variable.message
-      : `What ${variable.name} ?`
+      : `What ${variable.name} ?`,
 });
 
 /**
@@ -23,12 +23,12 @@ const getDefaultConfig = variable => ({
  */
 const getFileConfig = (variable, type) => ({
   ...getDefaultConfig(variable),
-  type: "autocomplete",
+  type: 'autocomplete',
   source: (_, fileName) =>
     new Promise(resolve => {
-      const initialPath = variable.path || ".";
+      const initialPath = variable.path || '.';
       const list =
-        type === "file"
+        type === 'file'
           ? utils.getFiles(initialPath)
           : utils.getDirectories(initialPath);
 
@@ -50,7 +50,7 @@ const getFileConfig = (variable, type) => ({
           )
           .sort((a, b) => a.length - b.length)
       );
-    })
+    }),
 });
 
 const questionsConfig = {
@@ -60,7 +60,7 @@ const questionsConfig = {
    */
   text: variable => ({
     ...getDefaultConfig(variable),
-    type: "input"
+    type: 'input',
   }),
 
   /**
@@ -69,8 +69,8 @@ const questionsConfig = {
    */
   choices: variable => ({
     ...getDefaultConfig(variable),
-    type: "list",
-    choices: variable.choices
+    type: 'list',
+    choices: variable.choices,
   }),
 
   /**
@@ -79,28 +79,28 @@ const questionsConfig = {
    */
   autocomplete: variable => ({
     ...getDefaultConfig(variable),
-    type: "autocomplete",
+    type: 'autocomplete',
     source: (_, search) => {
-      const searchRegex = new RegExp(search, "i");
+      const searchRegex = new RegExp(search, 'i');
       return new Promise((resolve, reject) =>
         resolve(
           variable.choices.filter(choice => choice.search(searchRegex) !== -1)
         )
       );
-    }
+    },
   }),
 
   /**
    * Get config for a file select question
    * @param {object} variable
    */
-  file: variable => getFileConfig(variable, "file"),
+  file: variable => getFileConfig(variable, 'file'),
 
   /**
    * Get config for a directory select question
    * @param {object} variable
    */
-  directory: variable => getFileConfig(variable, "directory")
+  directory: variable => getFileConfig(variable, 'directory'),
 };
 
 /**
@@ -114,11 +114,11 @@ const ask = async (variables, prefixMessage) => {
   for (const variableName in variables) {
     const variable = variables[variableName];
 
-    if (variable.type === "array") {
+    if (variable.type === 'array') {
       if (variable.message) {
         console.log(
           `${chalk.bold(
-            `\n${applyVariables(responses, variable.message, "message")}`
+            `\n${applyVariables(responses, variable.message, 'message')}`
           )} (esc to exit loop)`
         );
       }
@@ -127,10 +127,10 @@ const ask = async (variables, prefixMessage) => {
       let index = 0;
       const defaultVariable = {
         default: {
-          type: "text",
-          message: "",
-          name: variableName
-        }
+          type: 'text',
+          message: '',
+          name: variableName,
+        },
       };
 
       while (true) {
@@ -139,7 +139,7 @@ const ask = async (variables, prefixMessage) => {
             const subResponses = await ask(defaultVariable, `${index}:`);
             response = [
               ...response,
-              ...Object.keys(subResponses).map(key => subResponses[key])
+              ...Object.keys(subResponses).map(key => subResponses[key]),
             ];
           } else {
             const subResponses = await ask(variable.variables, `${index}: `);
@@ -150,7 +150,7 @@ const ask = async (variables, prefixMessage) => {
           if (e.name !== ERRORS_NAMES.CancelEditionError) {
             throw e;
           }
-          console.log("\n");
+          console.log('\n');
           break;
         }
       }
@@ -161,8 +161,8 @@ const ask = async (variables, prefixMessage) => {
         name: variableName,
         message:
           variable.message &&
-          applyVariables(responses, variable.message, "message"),
-        ...variable
+          applyVariables(responses, variable.message, 'message'),
+        ...variable,
       });
 
       if (prefixMessage !== undefined) {
@@ -173,7 +173,7 @@ const ask = async (variables, prefixMessage) => {
       if (variable.condition) {
         response = execCondition(variable.condition, responses)
           ? await utils.safePrompt(question)
-          : { [question.name]: "" };
+          : { [question.name]: '' };
       } else response = await utils.safePrompt(question);
 
       responses = { ...responses, ...response };
