@@ -19,12 +19,12 @@ class Config {
       name: {
         message: 'What do you want to generate ?',
         type: 'choices',
-        choices: this.templates.map(template => template.name),
+        choices: this.templates.map((template) => template.name),
       },
     });
 
     this.currentTemplate = this.templates.find(
-      template => template.name === name
+      (template) => template.name === name
     );
 
     if (this.currentTemplate.files.length < 1) {
@@ -83,6 +83,28 @@ class Config {
         );
       }
       for (const file of template.files) {
+        if (file.script) {
+          let fileScriptPath;
+          try {
+            fileScriptPath = fs.realpathSync(
+              `${CRAFTSMAN_FOLDER}/${file.script}.js`
+            );
+          } catch {
+            throw new ConfigValidationError(
+              `File script ${file.script} not found`
+            );
+          }
+
+          const fileScript = require(fileScriptPath);
+          if (typeof fileScript !== 'function') {
+            throw new ConfigValidationError(
+              `Make sure the ${file.script} file script is a function`
+            );
+          }
+          file.script = fileScript;
+          continue;
+        }
+
         if ((!file.path && !template.path) || !file.name || !file.template) {
           throw new ConfigValidationError(
             'Make sure files have all the keys path name and template'
@@ -96,7 +118,7 @@ class Config {
     }
 
     if (configContent.helpers) {
-      Object.keys(configContent.helpers).forEach(helperName => {
+      Object.keys(configContent.helpers).forEach((helperName) => {
         let helperPath;
         try {
           helperPath = fs.realpathSync(
