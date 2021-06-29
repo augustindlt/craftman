@@ -1,14 +1,16 @@
 const chalk = require('chalk');
 const utils = require('./utils');
 const execCondition = require('../condition');
-const { ERRORS_NAMES } = require('../errors');
+const { ERRORS_NAMES, ConfigValidationError } = require('../errors');
 const { applyVariables } = require('../Generator');
+const { CRAFTSMAN_FOLDER } = require('../constants');
+const fs = require('fs');
 
 /**
  * Get default config of a question
  * @param {object} variable
  */
-const getDefaultConfig = variable => ({
+const getDefaultConfig = (variable) => ({
   name: variable.name,
   message:
     variable.message !== undefined
@@ -25,7 +27,7 @@ const getFileConfig = (variable, type) => ({
   ...getDefaultConfig(variable),
   type: 'autocomplete',
   source: (_, fileName) =>
-    new Promise(resolve => {
+    new Promise((resolve) => {
       const initialPath = variable.path || '.';
       const list =
         type === 'file'
@@ -35,16 +37,16 @@ const getFileConfig = (variable, type) => ({
       resolve(
         list
           .filter(
-            f =>
+            (f) =>
               !fileName || f.toLowerCase().indexOf(fileName.toLowerCase()) != -1
           )
-          .filter(f => {
+          .filter((f) => {
             if (!variable.matchRegex) return true;
             const regexMatch = new RegExp(variable.matchRegex);
             return regexMatch.test(f);
           })
           .filter(
-            f =>
+            (f) =>
               !variable.matchString ||
               f.toLowerCase().indexOf(variable.matchString.toLowerCase()) != -1
           )
@@ -58,7 +60,7 @@ const questionsConfig = {
    * Get config for a text question
    * @param {object} variable
    */
-  text: variable => ({
+  text: (variable) => ({
     ...getDefaultConfig(variable),
     type: 'input',
   }),
@@ -67,7 +69,7 @@ const questionsConfig = {
    * Get config for a choices question
    * @param {object} variable
    */
-  choices: variable => ({
+  choices: (variable) => ({
     ...getDefaultConfig(variable),
     type: 'list',
     choices: variable.choices,
@@ -77,14 +79,14 @@ const questionsConfig = {
    * Get config for a autocomplete question
    * @param {object} variable
    */
-  autocomplete: variable => ({
+  autocomplete: (variable) => ({
     ...getDefaultConfig(variable),
     type: 'autocomplete',
     source: (_, search) => {
       const searchRegex = new RegExp(search, 'i');
       return new Promise((resolve, reject) =>
         resolve(
-          variable.choices.filter(choice => choice.search(searchRegex) !== -1)
+          variable.choices.filter((choice) => choice.search(searchRegex) !== -1)
         )
       );
     },
@@ -94,13 +96,13 @@ const questionsConfig = {
    * Get config for a file select question
    * @param {object} variable
    */
-  file: variable => getFileConfig(variable, 'file'),
+  file: (variable) => getFileConfig(variable, 'file'),
 
   /**
    * Get config for a directory select question
    * @param {object} variable
    */
-  directory: variable => getFileConfig(variable, 'directory'),
+  directory: (variable) => getFileConfig(variable, 'directory'),
 };
 
 /**
@@ -113,6 +115,29 @@ const ask = async (variables, prefixMessage) => {
 
   for (const variableName in variables) {
     const variable = variables[variableName];
+
+    if (variable.type === 'script') {
+      let variableScriptPath;
+      try {
+        variableScriptPath = fs.realpathSync(
+          `${CRAFTSMAN_FOLDER}/${variable.script}.js`
+        );
+      } catch (e) {
+        console.log(e);
+        throw new ConfigValidationError(
+          `Variable ${variableName} script not found at ${variable.script}.`
+        );
+      }
+
+      const variableScript = require(variableScriptPath);
+      if (typeof variableScript !== 'function') {
+        throw new ConfigValidationError(
+          `Make sure the variable ${variableName} script is a function`
+        );
+      }
+      await variableScript(responses, ask);
+      continue;
+    }
 
     if (variable.type === 'array') {
       if (variable.message) {
@@ -139,7 +164,7 @@ const ask = async (variables, prefixMessage) => {
             const subResponses = await ask(defaultVariable, `${index}:`);
             response = [
               ...response,
-              ...Object.keys(subResponses).map(key => subResponses[key]),
+              ...Object.keys(subResponses).map((key) => subResponses[key]),
             ];
           } else {
             const subResponses = await ask(variable.variables, `${index}: `);
@@ -156,28 +181,29 @@ const ask = async (variables, prefixMessage) => {
       }
 
       responses = { ...responses, [variableName]: response };
-    } else {
-      const question = questionsConfig[variable.type]({
-        name: variableName,
-        message:
-          variable.message &&
-          applyVariables(responses, variable.message, 'message'),
-        ...variable,
-      });
-
-      if (prefixMessage !== undefined) {
-        question.message = `${prefixMessage}${question.message}`;
-      }
-
-      let response;
-      if (variable.condition) {
-        response = execCondition(variable.condition, responses)
-          ? await utils.safePrompt(question)
-          : { [question.name]: '' };
-      } else response = await utils.safePrompt(question);
-
-      responses = { ...responses, ...response };
+      continue;
     }
+
+    const question = questionsConfig[variable.type]({
+      name: variableName,
+      message:
+        variable.message &&
+        applyVariables(responses, variable.message, 'message'),
+      ...variable,
+    });
+
+    if (prefixMessage !== undefined) {
+      question.message = `${prefixMessage}${question.message}`;
+    }
+
+    let response;
+    if (variable.condition) {
+      response = execCondition(variable.condition, responses)
+        ? await utils.safePrompt(question)
+        : { [question.name]: '' };
+    } else response = await utils.safePrompt(question);
+
+    responses = { ...responses, ...response };
   }
   return responses;
 };
