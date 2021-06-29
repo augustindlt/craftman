@@ -6,7 +6,6 @@ const { generateFile } = require('./Generator');
 const { handleError } = require('./errors');
 const execCondition = require('./condition');
 const loadHelpers = require('./Generator/exposedHelpers');
-const ask = require('./Config/ask');
 
 (async () => {
   try {
@@ -23,10 +22,6 @@ const ask = require('./Config/ask');
     console.log('\n');
 
     for (const file of config.currentTemplate.files) {
-      if (file.script) {
-        await file.script(config.currentVariables, ask);
-        continue;
-      }
       if (
         !file.condition ||
         (file.condition &&
@@ -35,6 +30,7 @@ const ask = require('./Config/ask');
         await generateFile(
           file.template,
           file.path,
+          file.script,
           file.name,
           file.replaceExistingFile,
           config.currentVariables

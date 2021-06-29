@@ -84,24 +84,6 @@ class Config {
       }
       for (const file of template.files) {
         if (file.script) {
-          let fileScriptPath;
-          try {
-            fileScriptPath = fs.realpathSync(
-              `${CRAFTSMAN_FOLDER}/${file.script}.js`
-            );
-          } catch {
-            throw new ConfigValidationError(
-              `File script ${file.script} not found`
-            );
-          }
-
-          const fileScript = require(fileScriptPath);
-          if (typeof fileScript !== 'function') {
-            throw new ConfigValidationError(
-              `Make sure the ${file.script} file script is a function`
-            );
-          }
-          file.script = fileScript;
           continue;
         }
 
