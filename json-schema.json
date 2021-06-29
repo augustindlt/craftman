@@ -93,7 +93,8 @@
                 "autocomplete",
                 "file",
                 "directory",
-                "array"
+                "array",
+                "script"
               ]
             },
             "condition": {
@@ -143,6 +144,23 @@
                   }
                 },
                 "required": ["choices"]
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "type": { "enum": ["script"] }
+                },
+                "required": ["type"]
+              },
+              "then": {
+                "properties": {
+                  "script": {
+                    "description": "Path of the sript variable.",
+                    "type": "string"
+                  }
+                },
+                "required": ["script"]
               }
             },
             {
