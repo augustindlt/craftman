@@ -42,6 +42,27 @@ const createFile = async (path, fileName, content, replaceExistingFile) => {
 };
 
 /**
+ * Run template script
+ */
+const runTemplateScript = async (path, variables) => {
+  let fileScriptPath;
+  try {
+    fileScriptPath = fs.realpathSync(`${CRAFTSMAN_FOLDER}/${path}.js`);
+  } catch {
+    throw new TemplateNotFoundError(path);
+  }
+
+  const templateScript = require(fileScriptPath);
+  if (typeof templateScript !== 'function') {
+    throw new TemplateParserError(
+      path,
+      `Make sure the template script is a function`
+    );
+  }
+  await templateScript(variables, require('../Config/ask'));
+};
+
+/**
  * Apply variables to a string
  * @param {object} variables
  * @param {string} content
@@ -59,7 +80,7 @@ const applyVariables = (variables, content, scope) => {
  * Get the content of a template file
  * @param {string} templateName
  */
-const getTemplateContent = templateName => {
+const getTemplateContent = (templateName) => {
   const templatePath = `${CRAFTSMAN_FOLDER}/${templateName}.${TEMPLATE_EXT}`;
   if (!fs.existsSync(templatePath)) {
     throw new TemplateNotFoundError(templateName);
@@ -71,6 +92,7 @@ const getTemplateContent = templateName => {
  * Create a file in terms of template and variables
  * @param {string} templateName
  * @param {string} filePath
+ * @param {string} templateScript
  * @param {string} fileName
  * @param {"yes"|"no"|"ask"|undefined} replaceExistingFile
  * @param {object} variables
@@ -78,10 +100,20 @@ const getTemplateContent = templateName => {
 const generateFile = async (
   templateName,
   filePath,
+  templateScript,
   fileName,
   replaceExistingFile,
   variables
 ) => {
+  if (templateScript) {
+    templateScript = applyVariables(
+      variables,
+      templateScript,
+      'template script'
+    );
+    return await runTemplateScript(templateScript, variables);
+  }
+
   filePath = applyVariables(variables, filePath, 'file path');
   fileName = applyVariables(variables, fileName, 'file name');
   templateName = applyVariables(variables, templateName, 'template name');
