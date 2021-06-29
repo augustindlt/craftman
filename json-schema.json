@@ -37,9 +37,22 @@
                 "replaceExistingFile": {
                   "description": "Determines if the cli should replace the file or not if it already exists, by default this parameter by default this parameter is set to \"ask\".",
                   "enum": ["yes", "no", "ask"]
+                },
+                "script": {
+                  "type": "string",
+                  "description": "Custom script to generate files."
                 }
               },
-              "required": ["name", "template"]
+              "allOf": [
+                {
+                  "if": {
+                    "not": { "required": ["script"] }
+                  },
+                  "then": {
+                    "required": ["name", "template"]
+                  }
+                }
+              ]
             }
           },
           "variables": {
