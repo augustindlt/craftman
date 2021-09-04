@@ -110,9 +110,7 @@ const questionsConfig = {
  * @param {object} variables
  * @return {object} responses
  */
-const ask = async (variables, prefixMessage) => {
-  let responses = {};
-
+const ask = async (variables, prefixMessage, responses = {}) => {
   for (const variableName in variables) {
     const variable = variables[variableName];
 
@@ -161,13 +159,21 @@ const ask = async (variables, prefixMessage) => {
       while (true) {
         try {
           if (!variable.variables) {
-            const subResponses = await ask(defaultVariable, `${index}:`);
+            const subResponses = await ask(
+              defaultVariable,
+              `${index}:`,
+              responses
+            );
             response = [
               ...response,
               ...Object.keys(subResponses).map((key) => subResponses[key]),
             ];
           } else {
-            const subResponses = await ask(variable.variables, `${index}: `);
+            const subResponses = await ask(
+              variable.variables,
+              `${index}: `,
+              responses
+            );
             response = [...response, subResponses];
           }
           index++;
